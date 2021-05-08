@@ -31,7 +31,7 @@ Click on "Get from VCS".
 
 ![get from vcs](https://github.com/lisu60/SDN-Assignment/blob/master/images/from-vcs-first-open.png?raw=true)
 
-If you don't have that window, you can also archive it by selecting "Git -> Clone...", 
+If you don't have that window, you can also achieve it by selecting "Git -> Clone...", 
 as shown in the following figure:
 
 ![clone from git](https://github.com/lisu60/SDN-Assignment/blob/master/images/clone-from-git.png?raw=true)
@@ -55,14 +55,14 @@ Now you should have got a local copy of the repository.
 git clone https://github.com/lisu60/SDN-Assignment.git
 ```
 
+This command will checkout the repository from GitHub to your own machine, create a new directory called `SDN-Assignment`
+in your current directory.
+
 You can find this URL on the repository page:
 
 
 ![repo url](https://github.com/lisu60/SDN-Assignment/blob/master/images/repo-url.png?raw=true)
 
-
-This command will checkout the repository from GitHub to your own machine, create a new directory called `SDN-Assignment`
-in your current directory.
 
 ## 2. Track files with Git
 
