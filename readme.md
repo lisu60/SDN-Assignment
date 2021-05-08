@@ -1,14 +1,12 @@
 # Contents
 
 * [What is Git](#what-is-git)
-* [How to use Git](#how-to-use-git)
-    * [With PyCharm](#with-pycharm)
-        * [1. Get a local copy of the repository](#1-get-a-local-copy-of-the-repository)
-        * [2. Track files with Git](#2-track-files-with-git)
-        * [3. Commit your changes](#3-commit-your-changes)
-        * [4. Push your commits](#4-push-your-commits)
-        * [5. Update local repository](#5-update-local-repository)
-  * [With command line](#with-command-line)
+* [How to use Git (in 5 quick steps)](#how-to-use-git)
+    * [1. Get a local copy of the repository](#1-get-a-local-copy-of-the-repository)
+    * [2. Track files with Git](#2-track-files-with-git)
+    * [3. Commit your changes](#3-commit-your-changes)
+    * [4. Push your commits](#4-push-your-commits)
+    * [5. Update local repository](#5-update-local-repository)
     
 
 # What is Git
@@ -21,9 +19,12 @@ Here describes some basic operations of Git to get started with collaboration us
 
 # How to use Git
 
-## With PyCharm
+Here this is only a quick tutorial. For detailed and advanced use, see [PyCharm documents on Git](https://www.jetbrains.com/help/pycharm/using-git-integration.html).
 
-### 1. Get a local copy of the repository
+For the command line part,
+see [Atlassian's Git tutorials](https://www.atlassian.com/git/tutorials).
+
+## 1. Get a local copy of the repository
 
 If it's your first time opening PyCharm, you might see the following window.
 Click on "Get from VCS".
@@ -46,7 +47,24 @@ Select the "SDN-Assignment" repository and click "Clone":
 
 Now you should have got a local copy of the repository.
 
-### 2. Track files with Git
+---------
+
+### Command line:
+
+```bash
+git clone https://github.com/lisu60/SDN-Assignment.git
+```
+
+You can find this URL on the repository page:
+
+
+![repo url](https://github.com/lisu60/SDN-Assignment/blob/master/images/repo-url.png?raw=true)
+
+
+This command will checkout the repository from GitHub to your own machine, create a new directory called `SDN-Assignment`
+in your current directory.
+
+## 2. Track files with Git
 
 When you add a new file to the project, PyCharm automatically asks you if you want to track this file. 
 Simply clicking "Add" will do the trick:
@@ -57,7 +75,24 @@ But if you somehow clicked "cancel" and want to add the file later, you can do i
 
 ![add file later](https://github.com/lisu60/SDN-Assignment/blob/master/images/add-file-later.png?raw=true)
 
-### 3. Commit your changes
+-------
+
+###  Command line:
+
+```bash
+git add ryu-app1.py
+```
+
+This command will add the file `ryu-app1.py` to be tracked by Git. It will also **stage** the file for commit, about 
+which we will discuss later.
+
+At any time, you can check the status of your repository with the following command:
+
+```bash
+git status
+```
+
+## 3. Commit your changes
 
 This is the part where *version control* kicks in.
 
@@ -77,6 +112,38 @@ write your description of this commit, then click "Commit":
 
 You can check all the commits by selecting "Git -> Show Git Log".
 
+---------
+
+### Command line:
+
+After you modified `ryu-app1.py`, it contains changes not yet committed. You can check this by running the following
+command mentioned above:
+
+```bash
+git status
+```
+
+![git status](https://github.com/lisu60/SDN-Assignment/blob/master/images/git-status-change-not-added.png?raw=true)
+
+You can **stage** this file for commit by running:
+
+```bash
+git add ryu-app1.py
+```
+
+Yes, it is the same command when you added the file for tracking. If you run `git status` again now, you can see that
+this file is staged. Now you can issue the following command to commit this change:
+
+```bash
+git commit -m "Create controller app for highly available, load balanced network"
+```
+
+You can check all the commits with the following command:
+
+```bash
+git log
+```
+
 ### 4. Push your commits
 
 The commit you just made is only stored on your own machine. To publish these changes onto GitHub so that everyone can
@@ -92,6 +159,15 @@ After this, you can see the changes on the repository page on GitHub:
 
 ![push result](https://github.com/lisu60/SDN-Assignment/blob/master/images/push-result.png?raw=true)
 
+---------
+
+### Command line:
+
+```bash
+git push
+```
+
+
 ### 5. Update local repository
 
 Now someone in the project updated `ryu-app1.py`, you can see it on the GitHub repo page:
@@ -102,28 +178,15 @@ How do you sync with this change?
 
 You can do it by selecting "Git -> Update Project". After this, you can see newer commits pushed by other users:
 
-![update project](https://github.com/lisu60/SDN-Assignment/blob/master/images/update-project.png?raw=true)
+![commit changes](https://github.com/lisu60/SDN-Assignment/blob/master/images/commit-changes.png?raw=true)
 
+--------
 
+### Command line:
 
+You can use the following command to get latest commits from remote repository (GitHub):
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+```bash
+git pull
+```
 
