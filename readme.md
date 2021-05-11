@@ -1,7 +1,7 @@
 # Contents
 
 * [What is Git](#what-is-git)
-* [How to use Git (in 5 quick steps)](#how-to-use-git)
+* [How to use Git (in 5 quick steps)](#how-to-use-git-in-5-quick-steps)
     * [1. Get a local copy of the repository](#1-get-a-local-copy-of-the-repository)
     * [2. Track files with Git](#2-track-files-with-git)
     * [3. Commit your changes](#3-commit-your-changes)
@@ -17,7 +17,7 @@ with Git.
 
 Here describes some basic operations of Git to get started with collaboration using Git.
 
-# How to use Git
+# How to use Git (in 5 quick steps)
 
 Here this is only a quick tutorial. For detailed and advanced use, see [PyCharm documents on Git](https://www.jetbrains.com/help/pycharm/using-git-integration.html).
 
