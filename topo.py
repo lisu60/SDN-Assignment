@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 
-from mininet.net import Mininet
-from mininet.cli import CLI
+from mn_wifi.net import Mininet_wifi
+from mn_wifi.cli import CLI
 from mininet.node import RemoteController
+from mn_wifi.link import wmediumd
 from sys import argv
 
 '''
 Use --remote option to specify remote controller
 '''
 
-net = Mininet()
+net = Mininet_wifi(link=wmediumd)
 
 ########
 # Nodes
@@ -24,6 +25,11 @@ s5 = net.addSwitch('s5')  # seminar rooms
 s6 = net.addSwitch('s6')  # proto lab
 s7 = net.addSwitch('s7')  # 2nd floor offices
 s8 = net.addSwitch('s8')  # building 2 office
+
+# APs
+
+ap1 = net.addAccessPoint('ap1', dpid='11') #17
+ap2 = net.addAccessPoint('ap2', dpid='12') #18
 
 # Hosts
 recp1 = net.addHost('recp1', ip='10.0.1.176')  # Reception
@@ -47,9 +53,17 @@ rnd1 = net.addHost('rnd1', ip='10.0.0.129')             # R&D server
 backup1 = net.addHost('backup1', ip='10.0.0.172')       # Backup server
 videoFeed1 = net.addHost('videoFeed', ip='10.0.0.167')  # Video feed server feeding demo room display
 
+# Stations
+
+sta1 = net.addStation('sta1', ip='10.0.3.58')
+sta2 = net.addStation('sta2', ip='10.0.3.161')
+
+
 #
 #
 #########
+
+net.configureWifiNodes()
 
 #########
 # Links
@@ -63,6 +77,10 @@ net.addLink(s1, s5, 5, 1)  # Core and Seminar Rooms
 net.addLink(s1, s6, 6, 1)  # Core and Proto Lab
 net.addLink(s1, s7, 7, 1)  # Core and 2nd Floor Offices
 net.addLink(s1, s8, 8, 1)  # Core and Building 2 Office
+
+net.addLink(s1, ap1, 17, 2) # Core and AP1
+net.addLink(s1, ap2, 18, 2) # Core and AP2
+
 
 # Host Links
 net.addLink(server1, s1)
@@ -86,6 +104,9 @@ net.addLink(o2fRsch, s7)
 net.addLink(dr, s7)
 net.addLink(obld21, s8)
 
+net.addLink(ap1, sta1)
+net.addLink(ap2, sta2)
+
 #
 #
 #########
@@ -102,5 +123,8 @@ server1.cmd('python3 -m http.server 80 &')
 
 
 net.start()
+#c0.start()
+ap1.start([c0])
+ap2.start([c0])
 CLI(net)
 net.stop()

@@ -15,21 +15,24 @@ class SwitchAccessControl(app_manager.RyuApp):
     def __init__(self, *args, **kwargs):
         super(SwitchAccessControl, self).__init__(*args, **kwargs)
         self.dp_graph = {
-            1: [2, 3, 4, 5, 6, 7, 8],
+            1: [2, 3, 4, 5, 6, 7, 8, 17, 18],
             2: [1],
             3: [1],
             4: [1],
             5: [1],
             6: [1],
             7: [1],
-            8: [1]
+            8: [1],
+            17: [1],
+            18: [1]
         }
+        self.ap_dpid = [17, 18]
         self.mac_table = {}  #  {MAC1: (dpid, portNo), MAC2: (dpid, portNo)}
         self.arp_table = {}  #  {IP: MAC}
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
     def switch_features_handler(self, event): # this method handles switch feature requests and we install initial flow to forward all the packets to the controller incase of a table miss.
-        print("Initialising Datapath %d" %event.msg.datapath.id)
+        self.logger.info("Initialising Datapath %d" %event.msg.datapath.id)
         self.install_init_rules(event) # send to the controller
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
@@ -110,6 +113,11 @@ class SwitchAccessControl(app_manager.RyuApp):
 
         if dst_mac in self.mac_table:
             dst_dpid, dst_port = self.mac_table[dst_mac]
+            if dpid in self.ap_dpid:
+                if dpid == dst_dpid:
+                    return 1
+                else:
+                    return 2
             if dpid == dst_dpid:
                 return dst_port
             else:
@@ -133,12 +141,26 @@ class SwitchAccessControl(app_manager.RyuApp):
         mod = parser.OFPFlowMod(datapath=datapath, priority=0, match=match, instructions=inst)
         datapath.send_msg(mod)
 
-        # Flood all ARP traffic
-        match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_ARP) #.
-        actions = [parser.OFPActionOutput(ofproto.OFPP_FLOOD)]
-        inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, actions)]
-        mod = parser.OFPFlowMod(datapath=datapath, priority=1, match=match, instructions=inst)
-        datapath.send_msg(mod)
+        if event.msg.datapath.id in self.ap_dpid:
+            match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_ARP, in_port=1)  # .
+            actions = [parser.OFPActionOutput(2)]
+            inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, actions)]
+            mod = parser.OFPFlowMod(datapath=datapath, priority=1, match=match, instructions=inst)
+            datapath.send_msg(mod)
+            match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_ARP, in_port=2)  # .
+            actions = [parser.OFPActionOutput(1)]
+            inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, actions)]
+            mod = parser.OFPFlowMod(datapath=datapath, priority=1, match=match, instructions=inst)
+            datapath.send_msg(mod)
+
+        else:
+
+             # Flood all ARP traffic
+             match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_ARP) #.
+             actions = [parser.OFPActionOutput(ofproto.OFPP_FLOOD)]
+             inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, actions)]
+             mod = parser.OFPFlowMod(datapath=datapath, priority=1, match=match, instructions=inst)
+             datapath.send_msg(mod)
 
 
     def add_flow(self, datapath, priority, match, actions, buffer_id=None):# Send flow_mod message to switch
