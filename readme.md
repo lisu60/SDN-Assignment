@@ -1,6 +1,6 @@
 # Environment
 
-This project is expected to run in the [Mininet-WiFi virtual machine]([3.4GB Size] - Lubuntu 20.04 x64),
+This project is expected to run in the [Mininet-WiFi virtual machine](https://drive.google.com/file/d/1R8n4thPwV2krFa6WNP0Eh05ZHZEdhw4W/view?usp=sharing),
 because we utilise WiFi simulation of it.
 
 You will also need to install Ryu on the Mininet-WiFi VM, because we use Ryu as SDN controller.
