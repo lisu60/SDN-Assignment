@@ -84,7 +84,7 @@ net.addLink(s1, s7, 7, 1)  # Core and 2nd Floor Offices
 net.addLink(s1, s8, 8, 1)  # Core and Building 2 Office
 
 net.addLink(s1, ap1, 17, 2) # Core and AP1
-net.addLink(s1, ap2, 18, 2) # Core and AP2
+net.addLink(s8, ap2, 18, 2) # Core and AP2
 
 
 # Host Links

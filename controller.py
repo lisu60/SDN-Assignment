@@ -15,16 +15,16 @@ class SwitchAccessControl(app_manager.RyuApp):
     def __init__(self, *args, **kwargs):
         super(SwitchAccessControl, self).__init__(*args, **kwargs)
         self.dp_graph = {
-            1: [2, 3, 4, 5, 6, 7, 8, 17, 18],
+            1: [2, 3, 4, 5, 6, 7, 8, 17],
             2: [1],
             3: [1],
             4: [1],
             5: [1],
             6: [1],
             7: [1],
-            8: [1],
+            8: [1, 18],
             17: [1],
-            18: [1]
+            18: [8]
         }
         self.ap_dpid = [17, 18]
         self.mac_table = {}  #  {MAC1: (dpid, portNo), MAC2: (dpid, portNo)}
@@ -78,6 +78,8 @@ class SwitchAccessControl(app_manager.RyuApp):
 
         if self.check_access():  # TODO: Implement filtering in check_access() method
             out_port = self.get_out_port(datapath.id, eth.dst)
+            if in_port == out_port:
+                return
             if not out_port:
                 # Flood the packet if out_port not found
                 self.switchport_out(pkt, datapath, ofproto.OFPP_FLOOD)
@@ -166,8 +168,8 @@ class SwitchAccessControl(app_manager.RyuApp):
     def add_flow(self, datapath, priority, match, actions, buffer_id=None):# Send flow_mod message to switch
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
-        idle_timeout=45 # idle-timeout set to 45 seconds
-        hard_timeout=600
+        idle_timeout=600
+        hard_timeout=1800
         inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, actions)] #forming instructions
         if buffer_id:
             mod = parser.OFPFlowMod(datapath=datapath, buffer_id=buffer_id, priority=priority, idle_timeout=idle_timeout, hard_timeout=hard_timeout, match=match, instructions=inst)
