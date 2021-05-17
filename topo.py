@@ -57,6 +57,9 @@ inet1 = net.addHost('inet1', ip='37.54.205.13')         # A dummy internet serve
 
 # Stations
 
+# The defaultRoute argument doesn't work for stations somehow. Will set default route with commands below
+# sta1 = net.addStation('sta1', ip='10.0.3.58', defaultRoute='via 10.0.0.2')
+# sta2 = net.addStation('sta2', ip='10.0.3.161', defaultRoute='via 10.0.0.2')
 sta1 = net.addStation('sta1', ip='10.0.3.58')
 sta2 = net.addStation('sta2', ip='10.0.3.161')
 
@@ -122,6 +125,10 @@ else:
     c0 = net.addController('c0')
 
 net.start()
+
+# Set default route for stations
+sta1.cmd('route add default gw 10.0.0.2')
+sta2.cmd('route add default gw 10.0.0.2')
 
 # Start HTTP service on inet1
 inet1.cmd('cd inet1')
