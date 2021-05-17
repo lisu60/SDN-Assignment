@@ -9,6 +9,9 @@ from ryu.lib.packet import ether_types
 
 from collections import deque
 
+# Liying: testing
+import ipaddress
+
 class SwitchAccessControl(app_manager.RyuApp):
 
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
@@ -76,7 +79,9 @@ class SwitchAccessControl(app_manager.RyuApp):
         # match = parser.OFPMatch(eth_src=eth.src, eth_dst=eth.dst, ipv4_src=ip_pkt.src, ipv4_dst=ip_pkt.dst, in_port=in_port)
         # ipv4_src and ipv4_dst fields somehow cause the flow not added to the switches
 
-        if self.check_access():  # TODO: Implement filtering in check_access() method
+
+        #liying: pass 2 arguments in_pkt.src and in_pkt.dst
+        if self.check_access(ip_pkt.src, ip_pkt.dst):  # TODO: Implement filtering in check_access() method
             out_port = self.get_out_port(datapath.id, eth.dst)
             if in_port == out_port:
                 return
@@ -125,13 +130,76 @@ class SwitchAccessControl(app_manager.RyuApp):
             else:
                 return self.find_shortest_path(self.dp_graph, dpid, dst_dpid)[1]
 
-    def check_access(self):
+    def check_access(self, ipSrc, ipDst):
         #  TODO: Implement filtering logic here
         '''
-
         :return: True when access checks out for the packet
         '''
-        return True
+        # test
+        if ipaddress.IPv4Address(ipDst) in ipaddress.IPv4Network('10.0.0.0/24'):
+            # Check ip address (source): Demo room can only access the video feed server
+            if ipSrc == '10.0.1.158':
+                if ipDst == '10.0.0.167': # Video Feed Server:
+                    return True
+                else:
+                    return False
+            # Check ip address (source): laptops (wireless access) can only access the backup servers
+            elif ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.3.0/24'):
+                if ipDst == '10.0.0.172':
+                    return True
+                else:
+                    return False
+            
+            # Check ip address (destination): only Proto lab and 1 resercher in Management can access R&D servers
+            elif ipaddress.IPv4Address(ipDst) in ipaddress.IPv4Network('10.0.0.128/30'):
+                if ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.128/28') or ipSrc == '10.0.1.151':
+                    return True
+                else:
+                    return False
+            
+            # Check ip address (destination): only the demo room can access the video feed server 10.0.0.167
+            elif ipDst == '10.0.0.167':
+                if ipSrc == '10.0.1.158':
+                    return True
+                else:
+                    return False
+            
+            # Check ip address (source): only GF Offices, reception, Software lab, Seminar Rooms (instructor), 
+            # Photo-lab, 1 researcher in mgmt, building 2 Offices and building 2 Cams & Sensors can access intranet 
+            # apart from the R&D servers and video feed server
+            else: 
+                if ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.160/28') \
+                    or ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.176/30') \
+                    or ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.64/26') \
+                    or ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.60/31') \
+                    or ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.128/28') \
+                    or ipSrc == '10.0.1.151' \
+                    or ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.2.32/29') \
+                    or ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.2.0/27'):
+                    return True
+                else:
+                    return False
+
+        # If the ip destination is outside of 10.0.0.0.8 (internet), only allow GF Offices, Software lab, seminar rooms: 
+        # instructor, seminar room: Lab PCs, Proto lab, 1 researcher in mgmt, mgmt offices, laptops (wireless access) 
+        elif ipaddress.IPv4Address(ipDst) not in ipaddress.IPv4Network('10.0.0.0/8'):
+            
+            # Demo room cannot access internet (exclude it from 10.0.1.144/28)
+            if ipSrc == '10.0.1.158':
+                return False
+            
+            elif ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.160/28') \
+                or ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.64/26') \
+                or ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.0/26') \
+                or ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.128/28') \
+                or ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.144/28') \
+                or ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.3.0/24'):
+                return True
+            else:
+                return False 
+
+        else:
+            return True
 
     def install_init_rules(self, event): # initial installation of table miss flow
         datapath = event.msg.datapath #.

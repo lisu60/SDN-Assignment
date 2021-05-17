@@ -40,7 +40,7 @@ sl2 = net.addHost('sl2', ip='10.0.1.115', defaultRoute='via 10.0.0.2')
 sr1 = net.addHost('sr1', ip='10.0.1.24', defaultRoute='via 10.0.0.2')       # Seminar Room
 sr2 = net.addHost('sr2', ip='10.0.1.51', defaultRoute='via 10.0.0.2')
 srLect = net.addHost('srLect', ip='10.0.1.60', defaultRoute='via 10.0.0.2') # Lectern/Instructor PC
-pl1 = net.addHost('pl1', ip='10.0.1.122', defaultRoute='via 10.0.0.2')      # Proto Lab
+pl1 = net.addHost('pl1', ip='10.0.1.129', defaultRoute='via 10.0.0.2')      # Proto Lab   ----- changed
 pl2 = net.addHost('pl2', ip='10.0.1.138', defaultRoute='via 10.0.0.2')
 o2f1 = net.addHost('o2f1', ip='10.0.1.153', defaultRoute='via 10.0.0.2')    # 2nd Floor Office
 o2f2 = net.addHost('o2f2', ip='10.0.1.156', defaultRoute='via 10.0.0.2')
@@ -51,7 +51,7 @@ obld21 = net.addHost('obld21', ip='10.0.2.33', defaultRoute='via 10.0.0.2') # Bu
 server1 = net.addHost('server1', ip='10.0.0.5', defaultRoute='via 10.0.0.2')         # A generic intranet server, running a dummy HTTP service
 rnd1 = net.addHost('rnd1', ip='10.0.0.129', defaultRoute='via 10.0.0.2')             # R&D server
 backup1 = net.addHost('backup1', ip='10.0.0.172', defaultRoute='via 10.0.0.2')       # Backup server
-videoFeed1 = net.addHost('videoFeed', ip='10.0.0.167', defaultRoute='via 10.0.0.2')  # Video feed server feeding demo room display
+videoFeed1 = net.addHost('videoFeed1', ip='10.0.0.167', defaultRoute='via 10.0.0.2')  # Video feed server feeding demo room display -- changed
 gateway = net.addHost('gateway', ip='0.0.0.0')          # Gateway to internet
 inet1 = net.addHost('inet1', ip='37.54.205.13')         # A dummy internet server
 
