@@ -47,21 +47,6 @@ class SwitchAccessControl(app_manager.RyuApp):
         elif eth.ethertype == ether_types.ETH_TYPE_IP: # handle Ip packet.
             self.handle_IP(event)
 
-    def handle_ARP(self,event): # handle ARP packets
-        datapath = event.msg.datapath # datapath connection
-        ofproto = datapath.ofproto #ofproto of the datapath
-
-        in_port = event.msg.match['in_port'] # port through which the switch recieved this packet
-        parser = datapath.ofproto_parser
-        pkt = packet.Packet(data=event.msg.data)
-        eth = pkt.get_protocols(ethernet.ethernet)[0] # fetching ethernet dataframe
-
-        arp_pkt = pkt.get_protocol(arp.arp) # Extract ARP information from the received packet
-        out_port = self.get_out_port(datapath.id, arp_pkt.dst_mac) or ofproto.OFPP_FLOOD
-        actions = [parser.OFPActionOutput(out_port)] # Set action to forwarding packet out of "out port"
-        match = parser.OFPMatch(eth_dst=eth.dst)
-        self.add_flow(datapath, 1, match, actions, buffer_id=None) # Add flow to switch
-
     def handle_IP(self, event):  # handle IP packets
         datapath = event.msg.datapath  # datapath connection
         ofproto = datapath.ofproto  # ofproto of the datapath
