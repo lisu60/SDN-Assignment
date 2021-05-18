@@ -82,6 +82,9 @@ class SwitchAccessControl(app_manager.RyuApp):
 
         #liying: pass 2 arguments in_pkt.src and in_pkt.dst
         if self.check_access(ip_pkt.src, ip_pkt.dst):  # TODO: Implement filtering in check_access() method
+            # To filter flooded-back packets
+            if not self.is_on_path(eth.src, datapath.id, in_port):
+                return
             out_port = self.get_out_port(datapath.id, eth.dst)
             if in_port == out_port:
                 return
@@ -95,10 +98,21 @@ class SwitchAccessControl(app_manager.RyuApp):
                     self.add_flow(datapath, 10, match, actions, event.msg.buffer_id)
                 else:
                     self.add_flow(datapath, 10, match, actions)
+                self.switchport_out(pkt, datapath, out_port)
 
         else:
             # Add flow to drop packet
             self.block_traffic(datapath, 10, match)
+
+    def is_on_path(self, eth_src, current_dpid, in_port):
+        if self.mac_table[eth_src][0] == current_dpid:
+            return True
+        previous_dpid = self.dp_graph[current_dpid][0] if current_dpid in self.ap_dpid else in_port
+        if previous_dpid in self.find_shortest_path(self.dp_graph, self.mac_table[eth_src][0], current_dpid):
+            return True
+        else:
+            return False
+
 
 
     def find_shortest_path(self, graph, start, end, path=[]):
