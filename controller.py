@@ -135,68 +135,99 @@ class SwitchAccessControl(app_manager.RyuApp):
         :return: True when access checks out for the packet
         '''
         # test
-        if ipaddress.IPv4Address(ipDst) in ipaddress.IPv4Network('10.0.0.0/24'):
-            # Check ip address (source): Demo room can only access the video feed server
-            if ipSrc == '10.0.1.158':
-                if ipDst == '10.0.0.167': # Video Feed Server:
-                    return True
-                else:
-                    return False
-            # Check ip address (source): laptops (wireless access) can only access the backup servers
-            elif ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.3.0/24'):
-                if ipDst == '10.0.0.172':
-                    return True
-                else:
-                    return False
-            
-            # Check ip address (destination): only Proto lab and 1 resercher in Management can access R&D servers
-            elif ipaddress.IPv4Address(ipDst) in ipaddress.IPv4Network('10.0.0.128/30'):
-                if ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.128/28') or ipSrc == '10.0.1.151':
-                    return True
-                else:
-                    return False
-            
-            # Check ip address (destination): only the demo room can access the video feed server 10.0.0.167
-            elif ipDst == '10.0.0.167':
-                if ipSrc == '10.0.1.158':
-                    return True
-                else:
-                    return False
-            
-            # Check ip address (source): only GF Offices, reception, Software lab, Seminar Rooms (instructor), 
-            # Photo-lab, 1 researcher in mgmt, building 2 Offices and building 2 Cams & Sensors can access intranet 
-            # apart from the R&D servers and video feed server
-            else: 
-                if ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.160/28') \
-                    or ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.176/30') \
-                    or ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.64/26') \
-                    or ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.60/31') \
-                    or ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.128/28') \
-                    or ipSrc == '10.0.1.151' \
-                    or ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.2.32/29') \
-                    or ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.2.0/27'):
-                    return True
-                else:
-                    return False
-
-        # If the ip destination is outside of 10.0.0.0.8 (internet), only allow GF Offices, Software lab, seminar rooms: 
-        # instructor, seminar room: Lab PCs, Proto lab, 1 researcher in mgmt, mgmt offices, laptops (wireless access) 
-        elif ipaddress.IPv4Address(ipDst) not in ipaddress.IPv4Network('10.0.0.0/8'):
-            
-            # Demo room cannot access internet (exclude it from 10.0.1.144/28)
-            if ipSrc == '10.0.1.158':
-                return False
-            
-            elif ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.160/28') \
-                or ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.64/26') \
-                or ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.0/26') \
-                or ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.128/28') \
-                or ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.144/28') \
-                or ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.3.0/24'):
+        # Check ip address (source): Demo room can only access the video feed server
+        if ipSrc == '10.0.1.158':
+            if ipDst == '10.0.0.167': # Video Feed Server:
                 return True
             else:
-                return False 
+                return False
+        # Check ip address (dst): video feed server only can be accessed by the demo room
+        elif ipDst == '10.0.0.167':
+            if ipSrc == '10.0.1.158':
+                return True
+            else:
+                return False
 
+        # Check ip address (dst): backup servers can be accessed by all hosts but not demo room and Building 2 IoT 
+        elif ipDst == '10.0.0.172':
+            if ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.160/28') or \
+                ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.176/30') or \
+                ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.64/26') or \
+                ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.0/26') or \
+                ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.128/28') or \
+                ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.144/28') or \
+                ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.3.0/24') or \
+                ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.2.32/29'):
+                return True
+            else:
+                return False
+
+        # Check ip address (dst): R&D servers can only be accessed by 1 researcher in mgmt and Proto lab
+        elif ipaddress.IPv4Address(ipDst) in ipaddress.IPv4Network('10.0.0.128/30'):
+            if ipSrc == '10.0.1.151' or ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.128/28'):
+                return True
+            else:
+                return False
+
+        # Check ip address (source): laptops (wireless access) can only access the backup servers and internet
+        elif ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.3.0/24'):
+            if ipDst == '10.0.0.172' or ipaddress.IPv4Address(ipDst) not in ipaddress.IPv4Network('10.0.0.0/8'):
+                return True
+            else:
+                return False
+  
+        # Check ip address (source): Reception and Building 2 Office including IoT can only access intranet
+        elif ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.176/30') or \
+            ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.2.32/29') or \
+            ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.2.0/27'):
+            if ipaddress.IPv4Address(ipDst) in ipaddress.IPv4Network('10.0.0.0/24'):
+                return True
+            else: 
+                return False
+
+        # Check ip address (source): only GF Offices, Software Lab, Serminar Room (Lectern) can have access to
+        # to both intranet and internet
+        elif ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.160/28') or \
+            ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.64/26') or \
+            ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.60/31'):
+             if ipaddress.IPv4Address(ipDst) in ipaddress.IPv4Network('10.0.0.0/24') or \
+                 ipaddress.IPv4Address(ipDst) not in ipaddress.IPv4Network('10.0.0.0/8'):
+                return True
+             else: 
+                return False
+
+        # Check ip address (source): Seminar Rooms (Lab PCs) can have access to Internet
+        elif ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.0/26'):
+            if ipaddress.IPv4Address(ipDst) not in ipaddress.IPv4Network('10.0.0.0/8'):
+                return True
+            else: 
+                return False
+
+        # Check ip address (source): 1 researcher in mgmt office can access internet and R&D server
+        elif ipSrc == '10.0.1.151':
+            if ipaddress.IPv4Address(ipDst) in ipaddress.IPv4Network('10.0.0.128/30') or \
+                ipaddress.IPv4Address(ipDst) not in ipaddress.IPv4Network('10.0.0.0/8'):
+                return True
+            else: 
+                return False
+     
+        # Check ip address (source): mgmt offices can have access to Internet
+        elif ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.144/28'):
+            if ipaddress.IPv4Address(ipDst) not in ipaddress.IPv4Network('10.0.0.0/8'):
+                return True
+            else: 
+                return False
+
+        # Check ip address (source): Proto lab can access intranet, internet and R&D server:
+        elif ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.128/28'):
+            if ipaddress.IPv4Address(ipDst) in ipaddress.IPv4Network('10.0.0.0/24') or \
+                ipaddress.IPv4Address(ipDst) not in ipaddress.IPv4Network('10.0.0.0/8') or \
+                ipaddress.IPv4Address(ipDst) in ipaddress.IPv4Network('10.0.0.128/30'):
+                return True
+            else: 
+                return False
+
+        # All servers are allowed to return traffic
         else:
             return True
 
