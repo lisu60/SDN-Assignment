@@ -5,6 +5,7 @@ from mn_wifi.cli import CLI
 from mininet.node import RemoteController
 from mn_wifi.link import wmediumd
 from sys import argv
+import os
 
 '''
 Use --remote option to specify remote controller
@@ -149,5 +150,29 @@ gateway.cmd('iptables -A FORWARD -i gateway-eth0 -o gateway-eth1 -j ACCEPT')
 #c0.start()
 ap1.start([c0])
 ap2.start([c0])
+
+# Enable QoS on gateway to the internet - settubgon s1-eth22 port
+os.system('sudo ovs-vsctl set Bridge s1 protocols=OpenFlow13')
+os.system('sudo ovs-vsctl set-manager ptcp:6632')
+
+# queue 111 management: min 6 mbps max 20 mbps to the internet
+# queue 222: video feed server: demo room needs at least 50 mbps
+# queue 333: UAV application developers in software labs: will have min 20 mbps and max 30 mbps
+# queue 444: students in seminar rooms: max 15 mbps
+# queue 555: wireless access (laptops): max 15 mbps
+os.system("""sudo ovs-vsctl \
+    set port s1-eth22 qos=@newqos \
+        -- set port s1-eth21 qos=@newqos -- \
+            --id=@newqos create qos type=linux-htb other-config:max-rate=100000000000 \
+                queues:111=@management queues:222=@videoFeed queues:333=@UAVappDevelop queues:444=@seminarStudent queues:555=@wirelessAccess -- \
+                    --id=@management create queue other-config:min-rate=6000000 other-config:max-rate=20000000 -- \
+                        --id=@videoFeed create queue other-config:min-rate=50000000 -- \
+                            --id=@UAVappDevelop create queue other-config:min-rate=20000000 other-config:max-rate=30000000 -- \
+                                --id=@seminarStudent create queue other-config:max-rate=15000000 -- \
+                                    --id=@wirelessAccess create queue other-config:max-rate=15000000""")
+
 CLI(net)
 net.stop()
+
+# To check the queue
+# sudo ovs-ofctl -O OpenFlow13 queue-stats s1 s1-eth22

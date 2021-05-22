@@ -78,7 +78,7 @@ class SwitchAccessControl(app_manager.RyuApp):
                 self.switchport_out(pkt, datapath, ofproto.OFPP_FLOOD)
             else:
                 # Create a flow
-                actions = [parser.OFPActionOutput(port=out_port)]
+                actions = self.set_qos(parser, out_port, ip_pkt.src, ip_pkt.dst)
                 if event.msg.buffer_id != ofproto.OFP_NO_BUFFER:
                     self.add_flow(datapath, 10, match, actions, event.msg.buffer_id)
                 else:
@@ -298,3 +298,33 @@ class SwitchAccessControl(app_manager.RyuApp):
         actions = [parser.OFPActionOutput(port=port)] #.
         out = parser.OFPPacketOut(datapath=datapath, buffer_id=ofproto.OFP_NO_BUFFER, in_port=ofproto.OFPP_CONTROLLER, actions=actions, data=data) #.
         datapath.send_msg(out) #.
+
+    # qos rules log
+    def set_qos(self, parser, out_port, ipSrc, ipDst):
+        actions = []
+        
+        # videoFeed set to queue 222
+        if ipSrc == "10.0.1.158":
+            actions = [parser.OFPActionSetQueue(queue_id=222),parser.OFPActionOutput(port=out_port)]
+
+        # management traffic set to queue 111
+        elif ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.144/28'):
+             actions = [parser.OFPActionSetQueue(queue_id=111), parser.OFPActionOutput(port=out_port)]
+
+         # Software lab traffic set to queue 333
+        elif ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.64/26'):
+             actions = [parser.OFPActionSetQueue(queue_id=333), parser.OFPActionOutput(port=out_port)]
+       
+         # student traffic (seminar room) set to queue 444 
+        elif ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.1.0/26') \
+             and ipaddress.IPv4Address(ipSrc) not in ipaddress.IPv4Network('10.0.1.60/31'): # excl lecterns
+             actions = [parser.OFPActionSetQueue(queue_id=444), parser.OFPActionOutput(port=out_port)]
+
+        # wireless access (laptop) set to queue 555
+        elif ipaddress.IPv4Address(ipSrc) in ipaddress.IPv4Network('10.0.3.0/24'): 
+             actions = [parser.OFPActionSetQueue(queue_id=555), parser.OFPActionOutput(port=out_port)]
+             
+        else:
+            actions = [parser.OFPActionOutput(port=out_port)]
+
+        return actions
