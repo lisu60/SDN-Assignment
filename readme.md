@@ -10,7 +10,7 @@ sudo apt update
 sudo apt upgrade
 ```
 
-You will also need to install Ryu on the Mininet-WiFi VM, because we use Ryu as SDN controller.
+You will also need to install Ryu and sFlow-RT on the Mininet-WiFi VM, because we use Ryu as SDN controller.
 Installation steps are shown below.
 
 
@@ -36,6 +36,21 @@ pip3 install eventlet==0.30.2
 ```
 
 Please refer to [pip installation guide](https://pip.pypa.io/en/stable/installing/) if `pip3` doesn't work on your VM.
+
+# Installing sFlow-RT and mininet-dashboard
+
+```
+# Download and extract sFlow-RT
+wget https://inmon.com/products/sFlow-RT/sflow-rt.tar.gz
+tar -xvzf sflow-rt.tar.gz
+
+# Insteall mininet-dashboard app for sFlow-RT
+sflow-rt/get-app.sh sflow-rt mininet-dashboard
+
+# Start sFlow-RT
+./sflow-rt/start.sh
+
+```
 
 # Running the code
 

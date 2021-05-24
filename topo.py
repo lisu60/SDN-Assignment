@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import sys
 
 from mn_wifi.net import Mininet_wifi
 from mn_wifi.cli import CLI
@@ -10,9 +11,12 @@ from sflow import wrapper
 
 '''
 Use --remote option to specify remote controller
+Use --sflow option to connect to sFlow service (For visualisation tool)
 '''
 
-setattr(Mininet_wifi, 'start', wrapper(Mininet_wifi.__dict__['start']))
+if '--sflow' in sys.argv:
+    setattr(Mininet_wifi, 'start', wrapper(Mininet_wifi.__dict__['start']))
+
 net = Mininet_wifi(link=wmediumd)
 
 ########

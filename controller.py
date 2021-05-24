@@ -66,7 +66,7 @@ class SwitchAccessControl(app_manager.RyuApp):
 
 
         #liying: pass 2 arguments in_pkt.src and in_pkt.dst
-        if self.check_access(ip_pkt.src, ip_pkt.dst):  # TODO: Implement filtering in check_access() method
+        if self.check_access(ip_pkt.src, ip_pkt.dst):
             # To filter flooded-back packets
             if not self.is_on_path(eth.src, datapath.id, in_port):
                 return
