@@ -6,11 +6,13 @@ from mininet.node import RemoteController
 from mn_wifi.link import wmediumd
 from sys import argv
 import os
+from sflow import wrapper
 
 '''
 Use --remote option to specify remote controller
 '''
 
+setattr(Mininet_wifi, 'start', wrapper(Mininet_wifi.__dict__['start']))
 net = Mininet_wifi(link=wmediumd)
 
 ########
