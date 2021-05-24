@@ -3,6 +3,13 @@
 This project is expected to run in the [Mininet-WiFi virtual machine](https://drive.google.com/file/d/1R8n4thPwV2krFa6WNP0Eh05ZHZEdhw4W/view?usp=sharing),
 because we utilise WiFi simulation of it.
 
+To get everything work as expected, please make sure your system is up to date by running the following commands:
+
+```bash
+sudo apt update
+sudo apt upgrade
+```
+
 You will also need to install Ryu on the Mininet-WiFi VM, because we use Ryu as SDN controller.
 Installation steps are shown below.
 
