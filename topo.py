@@ -91,10 +91,11 @@ net.addLink(s8, ap2, 18, 2) # Core and AP2
 
 
 # Host Links
+net.addLink(videoFeed1, s1, 0, 21)
+net.addLink(s1, gateway, 22, 0)
 net.addLink(server1, s1)
 net.addLink(rnd1, s1)
 net.addLink(backup1, s1)
-net.addLink(videoFeed1, s1)
 
 net.addLink(recp1, s2)
 net.addLink(ogf1, s3)
@@ -111,7 +112,6 @@ net.addLink(o2f2, s7)
 net.addLink(o2fRsch, s7)
 net.addLink(dr, s7)
 net.addLink(obld21, s8)
-net.addLink(s1, gateway)
 net.addLink(gateway, inet1)
 
 net.addLink(ap1, sta1)
